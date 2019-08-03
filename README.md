@@ -1,7 +1,6 @@
 # Descripition
 This is a simplified version of the game flappy bird. The purpose is to see how a simple 3 layers NN can learn to beat this game. The training model is Genetic based (10 birds each generation).
-AI library - Tensorflow.js
-Game engine library - p5.js
+
 
 # Examples
 
@@ -11,6 +10,7 @@ Game engine library - p5.js
 
 # How it was developed
 AI library - Tensorflow.js
+
 Game engine library - p5.js
 
 # How to use
