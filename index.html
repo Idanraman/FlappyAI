@@ -1,0 +1,147 @@
+<html>
+    <head>
+    	<meta charset="utf-8">
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.5/p5.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+      <script src="nn.js"></script>
+      <script src="ga.js"></script>
+      <script src="bird.js"></script>
+    	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.5/css/bootstrap.css">    	
+    </head>
+    <body>       
+        <div class="container">
+            <div id="jumbo-canvas" class="jumbotron">
+              <script type="text/javascript">
+
+
+function Obstacle(){
+    this.x = width
+    this.w = 30
+    this.topMin = 50
+    this.botMin = height - 50
+    this.gapStart = random(this.topMin, this.botMin)
+    this.gapLength = 150
+    this.speed = 3
+    
+    this.show = function(){
+        fill(0)
+        if (this.highlight){
+            fill('#FF0863')
+        }        
+        rect(this.x, 0, this.w, this.gapStart)
+        rect(this.x, this.gapStart + this.gapLength, this.w, height)
+    }
+    this.update = function(){
+        this.x -= this.speed        
+    }
+    this.offscreen = function(){
+        return this.x < 50
+    }
+    
+    this.hits = function(bird){
+        if (bird.y < this.gapStart || bird.y > this.gapStart + this.gapLength) {
+            if (bird.x > this.x && bird.x < this.x + this.w) {
+                this.highlight = true
+                return true
+            }
+        } 
+        this.highlight = false
+        return false
+    }    
+}
+
+function tofixedarr(arr){
+  sampleArray = arr.map(function(each_element){
+    return Number(each_element.toFixed(2));
+});
+}
+
+function regen(){
+  obstacles = []
+  obstacles.push(new Obstacle())
+  obstacles[0].x = width*0.66
+  birds.evolve()
+  live_birds = 10
+}
+function display_nn(bird){
+  fill(255, 255, 255)
+  textSize(10)
+  text(bird.data_in, 850, 100)
+  text(bird.desicionx, 850, 120)
+}
+
+var birds
+var obstacles = []
+var population = 10
+var live_birds = 10
+
+function setup(){
+  birds = new Generation(population)
+  birds.initialize(Bird)
+  var canvas = createCanvas(1000, 400)
+  canvas.parent('jumbo-canvas')
+  obstacles.push(new Obstacle())
+  
+}
+
+function draw(){
+  clear()
+  for (var i = birds.species.length - 1; i >= 0; i--){
+    if (birds.species[i].isalive == 1)
+    {
+      birds.species[i].show()
+      birds.species[i].update()
+      birds.species[i].decide()
+      birds.species[i].counter++
+      if (birds.species[i].desicion == 1){
+        birds.species[i].goUp()
+      }
+       
+      if (obstacles[0].hits(birds.species[i])){
+        birds.species[i].isalive = 0
+        live_birds--
+      }
+    }
+  }
+  // background('#FF0000')
+  
+  if (frameCount % 100 == 0) {
+        obstacles.push(new Obstacle())
+    }  
+  
+  for (var i = obstacles.length - 1; i >= 0; i--){
+      obstacles[i].show()
+      obstacles[i].update()
+    }
+  if (obstacles[0].offscreen()){
+      obstacles.splice(0, 1)
+      for (var j = birds.species.length - 1; j >= 0; j--){
+        if (birds.species[j].isalive == 1)
+        {
+          birds.species[j].score++
+        }   
+      }
+  
+  }
+
+  if (live_birds == 0){
+    regen()
+  }
+
+  textSize(15)
+  textFont("Helvetica")
+  fill(0, 0, 0)
+  rect(840, 0, 1000, 400)
+  //display_nn(birds.species[0])
+  //scoreboard
+  for (var i = birds.species.length - 1; i >= 0; i--){
+      fill(birds.species[i].color)
+      text('Bird score: ' + birds.species[i].score, 850, 160+i*15)
+      }
+}
+
+</script>
+            </div>
+        </div>
+    </body>
+</html>
